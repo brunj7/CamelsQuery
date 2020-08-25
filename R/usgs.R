@@ -16,8 +16,10 @@
 get_sample_data <- function(site_names, chem_codes=USGS_parameter_priority) {
 
   ## the goal of this function is make the dataRetrieval::readWQPdata() function a bit easier to use
-  #~ if site codes are incorrect readWQPdata() gives a vague error and also stops the function entirely, also it doesn't tell the user which sites dont have any qater quality data
-  #~~ this function indentifies site codes that arn't present/dont have data tells the user about those, and then uses only sites with data to run the readWQPdata() function
+  #~ if site codes are incorrect readWQPdata() gives a vague error and also stops the function entirely,
+  # also it doesn't tell the user which sites dont have any qater quality data
+  #~~ this function identifies site codes that aren't present/don't have data tells the user about those,
+  # and then uses only sites with data to run the readWQPdata() function
 
   ### create empty logical variables to be used for indexing working from non-working site codes
   err <- logical(length(site_names))
@@ -27,24 +29,27 @@ get_sample_data <- function(site_names, chem_codes=USGS_parameter_priority) {
   for (i in 1:length(site_names)) {
     ## look for sites that have sample data associated with them
     ## we use trycatch() because if a site doesn't exist the function is aborted/exited
-    data <- tryCatch(
-      dataRetrieval::whatWQPsamples(siteid = site_names[i]),
+    water_quality <- tryCatch(
+      dataRetrieval::whatWQPsamples(siteid = paste0("USGS-", site_names[i])), # need to add a check on this
       error=function(e) e
     )
 
-    ## if try catch recieved and error, ID this site code as being an error
-    if (inherits(data, "error")) {
+
+    ## if try catch received and error, ID this site code as being an error
+    if (inherits(water_quality, "error")) {
       err[i] <- TRUE
       next
 
     ## if there was no sample data present for this site, ID this as a "no data" site
-    } else if (length(data) == 1) {
+    } else if (length(water_quality) == 1) {
       no_data[i] <- TRUE
       next
     }
 
-    ## if niether of the past two if statements didnt trigger, ID this site code as working
+    ## if neither of the past two if statements did not trigger, ID this site code as working
     working[i] <- TRUE
+
+
 
   }
 
@@ -57,10 +62,25 @@ get_sample_data <- function(site_names, chem_codes=USGS_parameter_priority) {
   # run readWQPdata() using working site names,
   # then filter for only water quality data of interest based on the list of param_codes that is stored in the package data
   ##~~~ NOTE: may want to remove this feature/ add it as a T/F option in the function
-  wq_data <- dataRetrieval::readWQPdata(siteid = site_names[working]) %>%
+  wq_data <- dataRetrieval::readWQPdata(siteid = paste0("USGS-",site_names[working])) %>%
     filter(USGSPCode %in% chem_codes$`5_digit_code`)
 
-  return(wq_data)
+  # Get the corresponding stream flow data
+  flow_code <- "00060"
+  flow_daily <- dataRetrieval::readNWISdv(site_names[working], flow_code) # Assuming they all have a flow - to be tested
+
+  # Get the corresponding site information
+  site_info <- dataRetrieval::readNWISsite(site_names[working]) %>%
+    dplyr::select(agency_cd, site_no, station_nm, dec_lat_va, dec_long_va, dec_coord_datum_cd, state_cd, county_cd,
+                  alt_va, huc_cd, drain_area_va, contrib_drain_area_va, tz_cd) # select the columns of interest
+
+  # Put all the tables into a list (for now)
+  usgs_data <- list(discharge = flow_daily,
+                    water_q = wq_data,
+                    sites = site_info)
+
+
+  return(usgs_data)
 
 }
 

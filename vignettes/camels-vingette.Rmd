@@ -20,7 +20,8 @@ library(CamelsQuery)
 ```
 
 
-### This guide walks through the how to:  
+### This guide walks through the how to: 
+
 1. download CAMELS data remotely
 2. run and use the `extract_huc_data` function to query and visualize data from the CAMELS dataset
 3. use the `get_sample_data` function to get usgs streamgauge data
