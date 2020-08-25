@@ -1,7 +1,7 @@
 Package: CamelsQuery
 Type: Package
 Title: extract data from NCAR CAMELS model output
-Version: 0.1.0
+Version: 0.1.9000
 Author: c(person("Kyle", "Monper", 
                   email = "kylemonper@bren.ucsb.edu",
                   role = c("aut", "cre")),
@@ -19,10 +19,11 @@ Author: c(person("Kyle", "Monper",
 Maintainer: Julien Brun <brun@nceas.ucsb.edu>
 Description: Primary functionality is to take a list of Huc8's and retrieve data from the CAMELS model output for those hucs  
     More specifically these functions retrieve: daymet mean forcing, stream gauge, name, geology, topology, vegetation, hydrology, soils and climate data.
-    Additionally, there is a function tying this data to water quality data from the dataRetrieval package
-License: Apache License (== 2.0)
+    Additionally, there is a function tying this data to water quality data from the dataRetrieval package.
+License: Apache License (== 2.0) + file LICENSE
 Depends:
-  R (>= 3.5.0),
+  R (>= 3.5.0)
+Imports:
 	dplyr,
 	readr,
 	stringr,
@@ -30,7 +31,8 @@ Depends:
 	tools,
 	dataRetrieval,
 	zip,
-	ggplot2
+	ggplot2,
+	magrittr
 Encoding: UTF-8
 LazyData: true
 RoxygenNote: 7.1.1
