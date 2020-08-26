@@ -26,8 +26,8 @@ code creating the data: https://github.com/naddor/camels
 
 ## Package installation:
 ``` 
-install.packages("devtools")
-devtools::install_github("brunj7/CamelsQuery")
+install.packages("remotes")
+remotes::install_github("brunj7/CamelsQuery")
 ```
 
 *** 
