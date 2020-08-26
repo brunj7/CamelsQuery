@@ -17,7 +17,7 @@
 #' @export
 #'
 #' @examples
-#'\donttest{
+#'\dontrun{
 #' data_dir <- "~/CAMELS_data"
 #' download_camels(data_dir)
 #'}

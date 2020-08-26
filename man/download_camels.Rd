@@ -23,7 +23,7 @@ as well as the CAMELS attribute data v 2.0 from here:
 https://ral.ucar.edu/sites/default/files/public/product-tool/camels-catchment-attributes-and-meteorology-for-large-sample-studies-dataset-downloads/camels_attributes_v2.0.zip
 }
 \examples{
-\donttest{
+\dontrun{
 data_dir <- "~/CAMELS_data"
 download_camels(data_dir)
 }
