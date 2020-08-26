@@ -113,7 +113,7 @@ extract_huc_data_gauge <- function(daymet_dir, attr_dir, huc8_names) {
 
     ## name these nested lists
     #~ first is daymet, the following are named based on the name of the text file
-    list_names <- c("mean_forcing_daymet", file_path_sans_ext(basename(att_files)))
+    list_names <- c("mean_forcing_daymet", tools::file_path_sans_ext(basename(att_files)))
     names(attr_list) <- list_names
 
     ## add this whole list of data for this huc to this hucs list
@@ -293,7 +293,7 @@ extract_huc_data <- function(basin_dir, attr_dir, huc8_names) {
 
   ## name these nested lists
   #~ first is daymet, the following are named based on the name of the text file
-  list_names <- c("mean_forcing_daymet", "usgs_streamflow", file_path_sans_ext(basename(att_files)))
+  list_names <- c("mean_forcing_daymet", "usgs_streamflow", tools::file_path_sans_ext(basename(att_files)))
   names(attr_list) <- list_names
 
   return(attr_list)
