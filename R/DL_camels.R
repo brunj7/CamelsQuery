@@ -25,31 +25,34 @@
 download_camels <- function(data_dir) {
 
   ### create directory and file paths based on it.
-  dir.create(data_dir)
-  attr_dest <- paste(data_dir, "/attributes.zip", sep = "")
-  all_dest <- paste(data_dir, "/all_data.zip", sep = "")
+  dir.create(data_dir, showWarnings = FALSE)
+  attr_dest <- file.path(data_dir, "attributes.zip")
+  all_dest <- file.path(data_dir, "all_data.zip")
 
   ## download attribute data
   message(cat("downloading attribute data:"))
   download.file("https://ral.ucar.edu/sites/default/files/public/product-tool/camels-catchment-attributes-and-meteorology-for-large-sample-studies-dataset-downloads/camels_attributes_v2.0.zip", destfile = attr_dest, method = "auto")
 
-  ## a few (uneccessary) files within the .zip folder cause the unzip function to break, removing these here
-  filt <- zip_list(attr_dest) %>%
-    filter(!str_detect(filename, "Icon"))
+  ## a few (unnecessary) files within the .zip folder cause the unzip function to break, removing these here
+  filt <- zip::zip_list(attr_dest) %>%
+    dplyr::filter(!(stringr::str_detect(filename, "Icon|__MACOSX")))
 
   ## unzip into the user defined directory
   message(cat("unzipping attribute data to:", paste(attr_dest)))
-  unzip(attr_dest, files = paste(filt$filename), exdir = data_dir)
+  zip::unzip(attr_dest, files = paste(filt$filename), exdir = data_dir)
 
 
   message(cat("downloading attribute data:"))
   download.file("https://ral.ucar.edu/sites/default/files/public/product-tool/camels-catchment-attributes-and-meteorology-for-large-sample-studies-dataset-downloads/basin_timeseries_v1p2_metForcing_obsFlow.zip", destfile = all_dest, method = "auto")
 
   ## removing the Icon file like before as well as one single file from daymet that ends with a '*' that breaks the unzip function
-  filt <- zip_list(all_dest) %>%
-    dplyr::filter(!str_detect(filename, "Icon") & !str_detect(filename, "\\*"))
+  filt <- zip::zip_list(all_dest) %>%
+    dplyr::filter(!(stringr::str_detect(filename, "Icon|__MACOSX")) & !(stringr::str_detect(filename, "\\*")))
 
   message(cat("unzipping attribute data to:", paste(all_dest)))
-  unzip(all_dest, files = paste(filt$filename), exdir = data_dir)
+  zip::unzip(all_dest, files = paste(filt$filename), exdir = data_dir)
 
+  # Remove zip files
+  zip_files <- list.files(data_dir, pattern = ".zip")
+  unlink(zip_files)
 }
