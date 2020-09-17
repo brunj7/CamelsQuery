@@ -53,6 +53,6 @@ download_camels <- function(data_dir) {
   zip::unzip(all_dest, files = paste(filt$filename), exdir = data_dir)
 
   # Remove zip files
-  zip_files <- list.files(data_dir, pattern = ".zip")
-  unlink(zip_files)
+  zip_files <- list.files(data_dir, pattern = ".zip", full.names = TRUE)
+  file.remove(zip_files)
 }
