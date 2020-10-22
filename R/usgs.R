@@ -75,7 +75,7 @@ get_sample_data <- function(site_names, chem_codes=USGS_parameter_priority) {
   # Cleaning things
   flow_daily <- flow_daily %>%
     select(site_no, Date, X_00060_00003, X_00060_00003_cd ) %>%
-    rename(gauge_id = site_no)
+    rename(gauge_id = site_no) %>%
     rename(discharge_cfs = X_00060_00003) %>%
     rename(discharge_cfs_qflag = X_00060_00003_cd)
 
