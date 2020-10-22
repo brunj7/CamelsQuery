@@ -209,7 +209,8 @@ extract_huc_data <- function(basin_dir, attr_dir, huc8_names) {
   names(daymet_data) <- ids
   ## bind list into df, adding a column with huc as id
   all_daymet <- bind_rows(daymet_data, .id = "ID")
-
+  ## rename columns
+  names(all_daymet) <- c("gauge_id","year","month","day","hours","dayl_s","prcp_mmperday","srad_Wperm2","swe_mm","tmax_c","tmin_c","vp_pa")
 
   ## if one of the entered hucs isn't present, let user know
   if (length(ids) < length(huc8_names)) {
@@ -240,7 +241,6 @@ extract_huc_data <- function(basin_dir, attr_dir, huc8_names) {
     df <- read.table(file.path(flow_dir, as.character(flow_file[i,1])),
                      sep = '',
                      header = F)
-    names(df) <- c("gauge_id", "year", "month", "day", "discharge_cfs", "qc_flag")
 
     flow_data[[i]] <- df
 
@@ -264,6 +264,8 @@ extract_huc_data <- function(basin_dir, attr_dir, huc8_names) {
   suppressWarnings(
     all_flow <- bind_rows(flow_data)
   )
+  ## rename columns
+  names(all_flow) <- c("gauge_id", "year", "month", "day", "discharge_cfs", "qc_flag")
 
 
 

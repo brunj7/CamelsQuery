@@ -18,7 +18,7 @@ extract_huc_data_gauge(daymet_dir, attr_dir, huc8_names)
 named list for each huc8 with 8 nested named lists, one for each attribut of interest
 }
 \description{
-This function takes a list of watershed Huc 8s and extracts daily mean forcing daymet data as well as relevant climate, geology, hyrdology, area, soil, topography and vegetation data
+This function takes a list of watershed HUC 8s and extracts daily mean forcing daymet data as well as relevant climate, geology, hyrdology, area, soil, topography and vegetation data
 }
 \examples{
 \dontrun{
