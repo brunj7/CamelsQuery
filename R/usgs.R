@@ -53,7 +53,7 @@ get_sample_data <- function(site_names, chem_codes=USGS_parameter_priority) {
 
   }
 
-    ## throw a message letting the user know about incorrect site codes, or sites that don't have any data.
+  ## throw a message letting the user know about incorrect site codes, or sites that don't have any data.
   if(any(err)) cat("following sites not found please check that these station codes are correct: \n", sprintf("%s \n", site_names[err]))
   if(any(no_data)) cat("no sample data found for sites: \n", sprintf(" %s \n", site_names[no_data]))
 
@@ -63,16 +63,27 @@ get_sample_data <- function(site_names, chem_codes=USGS_parameter_priority) {
   # then filter for only water quality data of interest based on the list of param_codes that is stored in the package data
   ##~~~ NOTE: may want to remove this feature/ add it as a T/F option in the function
   wq_data <- dataRetrieval::readWQPdata(siteid = paste0("USGS-",site_names[working])) %>%
-    filter(USGSPCode %in% chem_codes$`5_digit_code`)
+    filter(USGSPCode %in% chem_codes$`X5_digit_code`)
+
+  # create a gauge_id field
+  wq_data <- wq_data
 
   # Get the corresponding stream flow data
   flow_code <- "00060"
   flow_daily <- dataRetrieval::readNWISdv(site_names[working], flow_code) # Assuming they all have a flow - to be tested
 
-  # Get the corresponding site information
+  # Cleaning things
+  flow_daily <- flow_daily %>%
+    select(site_no, Date, X_00060_00003, X_00060_00003_cd ) %>%
+    rename(gauge_id = site_no)
+    rename(discharge_cfs = X_00060_00003) %>%
+    rename(discharge_cfs_qflag = X_00060_00003_cd)
+
+  ## Get the corresponding site information
   site_info <- dataRetrieval::readNWISsite(site_names[working]) %>%
     dplyr::select(agency_cd, site_no, station_nm, dec_lat_va, dec_long_va, dec_coord_datum_cd, state_cd, county_cd,
-                  alt_va, huc_cd, drain_area_va, contrib_drain_area_va, tz_cd) # select the columns of interest
+                  alt_va, huc_cd, drain_area_va, contrib_drain_area_va, tz_cd) %>% # select the columns of interest
+    rename(gauge_id = site_no)
 
   # Put all the tables into a list (for now)
   usgs_data <- list(discharge = flow_daily,
