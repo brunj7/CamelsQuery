@@ -66,7 +66,8 @@ get_sample_data <- function(site_names, chem_codes=USGS_parameter_priority) {
     filter(USGSPCode %in% chem_codes$`X5_digit_code`)
 
   # create a gauge_id field
-  wq_data <- wq_data
+  wq_data <- wq_data %>%
+    separate(MonitoringLocationIdentifier, c("prefix", "gauge_id"), sep = "-")
 
   # Get the corresponding stream flow data
   flow_code <- "00060"
