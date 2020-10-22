@@ -1,6 +1,6 @@
 #' extract huc data listed by attribute
 #'
-#' This function takes a list of watershed Huc 8s and extracts daily mean forcing daymet data as well as relevant climate, geology, hyrdology, area, soil, topography and vegetation data
+#' This function takes a list of watershed HUC 8s and extracts daily mean forcing daymet data as well as relevant climate, geology, hyrdology, area, soil, topography and vegetation data
 #'
 #' @param daymet_dir directory path to daymet data should look something like: "~/basin_dataset_public_v1p2/basin_mean_forcing/daymet" this directory pathway MUST end with the daymet/ folder
 #' -- within this folder there should more directories (labeled '01', '02', '03' etc) representing different huc2 watersheds
@@ -49,15 +49,12 @@
 
 extract_huc_data_gauge <- function(daymet_dir, attr_dir, huc8_names) {
   ### check that filepaths exist
-
   if(!dir_exists(daymet_dir)) stop("daymet directory does not exist, please check file path")
   if(str_sub(daymet_dir, start = -6) != "daymet") stop("daymet directory is incorrect, please check file path")
   if(!dir_exists(attr_dir)) stop("attribute directory does not exist, please check file path")
 
-
   ## create empty huc list
   huc_list <- list()
-
 
   ## loop through each of the huc8 that were entered
   ## there are 2 steps in this loop
@@ -243,7 +240,7 @@ extract_huc_data <- function(basin_dir, attr_dir, huc8_names) {
     df <- read.table(file.path(flow_dir, as.character(flow_file[i,1])),
                      sep = '',
                      header = F)
-    names(df) <- c("ID", "Year", "Mnth", "Day", "discharge_cfs", "QC_flag")
+    names(df) <- c("gauge_id", "year", "month", "day", "discharge_cfs", "qc_flag")
 
     flow_data[[i]] <- df
 
