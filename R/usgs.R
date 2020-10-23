@@ -49,14 +49,11 @@ get_sample_data <- function(site_names, chem_codes=USGS_parameter_priority) {
     ## if neither of the past two if statements did not trigger, ID this site code as working
     working[i] <- TRUE
 
-
-
   }
 
   ## throw a message letting the user know about incorrect site codes, or sites that don't have any data.
   if(any(err)) cat("following sites not found please check that these station codes are correct: \n", sprintf("%s \n", site_names[err]))
   if(any(no_data)) cat("no sample data found for sites: \n", sprintf(" %s \n", site_names[no_data]))
-
 
 
   # run readWQPdata() using working site names,
@@ -84,8 +81,8 @@ get_sample_data <- function(site_names, chem_codes=USGS_parameter_priority) {
   ## attach the stream flow from the chemistry measurement
   # Get the flow from chemistry data
   usgs_chem_q <- wq_data %>%
-    dplyr::filter(str_detect(CharacteristicName,"flow")) %>%    # keep some room for other potential types of flow
-    dplyr::select(MonitoringLocationIdentifier, ActivityStartDate, ActivityStartTime.Time,
+    dplyr::filter(stringr::str_detect(CharacteristicName,"flow")) %>%    # keep some room for other potential types of flow
+    dplyr::select(gauge_id, ActivityStartDate, ActivityStartTime.Time,
            ActivityStartTime.TimeZoneCode, HydrologicCondition, HydrologicEvent, CharacteristicName,
            ResultMeasureValue, ResultMeasure.MeasureUnitCode)
   # join the flow data
