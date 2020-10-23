@@ -19,7 +19,7 @@ this is mainly a helper function for using the readWQPdata() function from the d
 }
 \examples{
 \dontrun{
-site_names <- c("USEPA-440432070255401","test", "USGS-010158001", "USGS-01011100", "test2")
+site_names <- c("USEPA-440432070255401","test", "010158001", "01011100", "test2")
 sample_data <- get_sample_data(site_names)
 }
 }
