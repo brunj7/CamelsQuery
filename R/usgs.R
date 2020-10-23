@@ -67,7 +67,8 @@ get_sample_data <- function(site_names, chem_codes=USGS_parameter_priority) {
 
   # create a gauge_id field
   wq_data <- wq_data %>%
-    tidyr::separate(MonitoringLocationIdentifier, c("organization", "gauge_id"), sep = "-")
+    tidyr::separate(MonitoringLocationIdentifier, c("organization", "gauge_id"), sep = "-") %>%
+    dplyr::select(-chem_fields_drop$name)
 
   ## Get the USGS stream flow time-series
   flow_code <- "00060"
