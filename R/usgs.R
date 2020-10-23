@@ -10,7 +10,7 @@
 #'
 #' @examples
 #'\dontrun{
-#' site_names <- c("USEPA-440432070255401","test", "USGS-010158001", "USGS-01011100", "test2")
+#' site_names <- c("USEPA-440432070255401","test", "010158001", "01011100", "test2")
 #' sample_data <- get_sample_data(site_names)
 #'}
 get_sample_data <- function(site_names, chem_codes=USGS_parameter_priority) {
@@ -87,7 +87,7 @@ get_sample_data <- function(site_names, chem_codes=USGS_parameter_priority) {
            ResultMeasureValue, ResultMeasure.MeasureUnitCode)
   # join the flow data
   # Combine it with the flow
-  all_q <- dplyr::left_join(flow_daily, usgs_chem_q, by = c("gauge_id","Date" = "ActivityStartDate")) %>%
+  all_q <- dplyr::left_join(flow_daily, usgs_chem_q, by = c("gauge_id", "Date" = "ActivityStartDate")) %>%
     dplyr::mutate(flow_diff = discharge_cfs - ResultMeasureValue)
 
 
