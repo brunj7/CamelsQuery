@@ -267,7 +267,7 @@ extract_huc_data <- function(basin_dir, attr_dir, huc8_names) {
   ## rename columns
   names(all_flow) <- c("gauge_id", "year", "month", "day", "discharge_cfs", "qc_flag")
   all_flow <- all_flow %>%
-    dplyr::mutate(date = lubridate::make_date(Year, Mnth, Day)) %>%
+    dplyr::mutate(date = lubridate::make_date(year, month, day)) %>%
     dplyr::mutate(gauge_id = paste0("0", gauge_id))
 
 
