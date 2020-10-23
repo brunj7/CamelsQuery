@@ -182,7 +182,7 @@ extract_huc_data <- function(basin_dir, attr_dir, huc8_names) {
   ## get file path for the Huc8's daymet data
   daymet_file <- data.frame(files = list.files(daymet_dir,
                                                recursive = T)) %>%
-      filter(str_detect(files, paste(huc8_names, collapse = "|")))
+      dplyr::filter(stringr::str_detect(files, paste(huc8_names, collapse = "|")))
 
   # Check if matches were found
   if(nrow(daymet_file) == 0) stop("None of those gauges are in the CAMELS database")
@@ -201,14 +201,14 @@ extract_huc_data <- function(basin_dir, attr_dir, huc8_names) {
     ### get huc names from file path (we cant reliably use the original huc8 vector incase one wasn't found)
     ##~ will use this to name each list item, which will then be turned into an ID when turning list into df
     ##~~~ the below line of code pastes row i from the df, and cleans the file path to just the huc by subtracting the first 8 chacters from the textfile name (basename)
-    ids[i] <- str_sub(basename(paste(daymet_file[i,1])), end = 8)
+    ids[i] <- stringr::str_sub(basename(paste(daymet_file[i,1])), end = 8)
 
   }
 
   ## name each list item with huc
   names(daymet_data) <- ids
   ## bind list into df, adding a column with huc as id
-  all_daymet <- bind_rows(daymet_data, .id = "ID")
+  all_daymet <- dplyr::bind_rows(daymet_data, .id = "ID")
   ## rename columns
   names(all_daymet) <- c("gauge_id","year","month","day","hours","dayl_s","prcp_mmperday","srad_Wperm2","swe_mm","tmax_c","tmin_c","vp_pa")
 
@@ -216,7 +216,7 @@ extract_huc_data <- function(basin_dir, attr_dir, huc8_names) {
   if (length(ids) < length(huc8_names)) {
     # turn huc8_names into df to filter out names that dont match the id's from above
     missing <- data.frame(name = huc8_names) %>%
-      filter(!name %in% ids)
+      select::filter(!name %in% ids)
 
     message(sprintf("daymet mean forcing data not found for the following huc(s): \n %s \n please check that these IDs are correct",
                     paste(missing$name, collapse = "  ")))
@@ -230,7 +230,7 @@ extract_huc_data <- function(basin_dir, attr_dir, huc8_names) {
   ### Repeating above workflow for streamgauge data
   flow_file <- data.frame(files = list.files(flow_dir,
                                              recursive = T)) %>%
-    filter(str_detect(files, paste(huc8_names, collapse = "|")))
+    dplyr::filter(str_detect(files, paste(huc8_names, collapse = "|")))
 
 
   ### read each of the met files in
@@ -244,7 +244,7 @@ extract_huc_data <- function(basin_dir, attr_dir, huc8_names) {
 
     flow_data[[i]] <- df
 
-    flow_ids[i] <- str_sub(basename(paste(flow_file[i,1])), end = 8)
+    flow_ids[i] <- stringr::str_sub(basename(paste(flow_file[i,1])), end = 8)
 
   }
 
@@ -262,10 +262,13 @@ extract_huc_data <- function(basin_dir, attr_dir, huc8_names) {
   ## bind list into df, adding a column with huc as id
   ##~ suppress warning about coercing to character
   suppressWarnings(
-    all_flow <- bind_rows(flow_data)
+    all_flow <- dplyr::bind_rows(flow_data)
   )
   ## rename columns
   names(all_flow) <- c("gauge_id", "year", "month", "day", "discharge_cfs", "qc_flag")
+  all_flow <- all_flow %>%
+    dplyr::mutate(date = lubridate::make_date(Year, Mnth, Day)) %>%
+    dplyr::mutate(gauge_id = paste0("0", gauge_id))
 
 
 
