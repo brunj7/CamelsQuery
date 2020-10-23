@@ -226,55 +226,55 @@ extract_huc_data <- function(basin_dir, attr_dir, huc8_names) {
   # add this as first item within this huc's list
   attr_list[[1]] <- all_daymet
 
-  ##### Step 1b #####
-  ### Repeating above workflow for streamgauge data
-  flow_file <- data.frame(files = list.files(flow_dir,
-                                             recursive = T)) %>%
-    dplyr::filter(str_detect(files, paste(huc8_names, collapse = "|")))
-
-
-  ### read each of the met files in
-  flow_data <- list()
-  flow_ids <- vector()
-  for(i in 1:nrow(flow_file)) {
-
-    df <- read.table(file.path(flow_dir, as.character(flow_file[i,1])),
-                     sep = '',
-                     header = F)
-
-    flow_data[[i]] <- df
-
-    flow_ids[i] <- stringr::str_sub(basename(paste(flow_file[i,1])), end = 8)
-
-  }
-
-  if (length(flow_ids) < length(huc8_names)) {
-    # turn huc8_names into df to filter out names that dont match the id's from above
-    missing <- data.frame(name = huc8_names) %>%
-      dplyr::filter(!name %in% flow_ids)
-
-    message(sprintf("flow data not found for the following huc(s): \n %s \n please check that these IDs are correct",
-                    paste(missing$name, collapse = "  ")))
-  }
-
-  ## name each list item with huc
-  names(flow_data) <- ids
-  ## bind list into df, adding a column with huc as id
-  ##~ suppress warning about coercing to character
-  suppressWarnings(
-    all_flow <- dplyr::bind_rows(flow_data)
-  )
-  ## rename columns
-  names(all_flow) <- c("gauge_id", "year", "month", "day", "discharge_cfs", "qc_flag")
-  all_flow <- all_flow %>%
-    dplyr::mutate(date = lubridate::make_date(year, month, day)) %>%
-    dplyr::mutate(gauge_id = paste0("0", gauge_id))
-
-
-
-
-  # add this as first item within this huc's list
-  attr_list[[2]] <- all_flow
+  # ##### Step 1b #####
+  # ### Repeating above workflow for streamgauge data
+  # flow_file <- data.frame(files = list.files(flow_dir,
+  #                                            recursive = T)) %>%
+  #   dplyr::filter(str_detect(files, paste(huc8_names, collapse = "|")))
+  #
+  #
+  # ### read each of the met files in
+  # flow_data <- list()
+  # flow_ids <- vector()
+  # for(i in 1:nrow(flow_file)) {
+  #
+  #   df <- read.table(file.path(flow_dir, as.character(flow_file[i,1])),
+  #                    sep = '',
+  #                    header = F)
+  #
+  #   flow_data[[i]] <- df
+  #
+  #   flow_ids[i] <- stringr::str_sub(basename(paste(flow_file[i,1])), end = 8)
+  #
+  # }
+  #
+  # if (length(flow_ids) < length(huc8_names)) {
+  #   # turn huc8_names into df to filter out names that dont match the id's from above
+  #   missing <- data.frame(name = huc8_names) %>%
+  #     dplyr::filter(!name %in% flow_ids)
+  #
+  #   message(sprintf("flow data not found for the following huc(s): \n %s \n please check that these IDs are correct",
+  #                   paste(missing$name, collapse = "  ")))
+  # }
+  #
+  # ## name each list item with huc
+  # names(flow_data) <- ids
+  # ## bind list into df, adding a column with huc as id
+  # ##~ suppress warning about coercing to character
+  # suppressWarnings(
+  #   all_flow <- dplyr::bind_rows(flow_data)
+  # )
+  # ## rename columns
+  # names(all_flow) <- c("gauge_id", "year", "month", "day", "discharge_cfs", "qc_flag")
+  # all_flow <- all_flow %>%
+  #   dplyr::mutate(date = lubridate::make_date(year, month, day)) %>%
+  #   dplyr::mutate(gauge_id = paste0("0", gauge_id))
+  #
+  #
+  #
+  #
+  # # add this as first item within this huc's list
+  # attr_list[[2]] <- all_flow
 
 
   #### STEP 2 ####
@@ -286,7 +286,7 @@ extract_huc_data <- function(basin_dir, attr_dir, huc8_names) {
   ### loop through each attribute, adding each as a new nested list item
   for (j in 1:length(att_files)) {
 
-    attr_list[[j+2]] <- read_delim(att_files[j],
+    attr_list[[j+1]] <- read_delim(att_files[j],
                                    delim = ";",
                                    col_types = cols()) %>%
       dplyr::filter(gauge_id %in% huc8_names)
