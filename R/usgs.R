@@ -63,11 +63,11 @@ get_sample_data <- function(site_names, chem_codes=USGS_parameter_priority) {
   # then filter for only water quality data of interest based on the list of param_codes that is stored in the package data
   ##~~~ NOTE: may want to remove this feature/ add it as a T/F option in the function
   wq_data <- dataRetrieval::readWQPdata(siteid = paste0("USGS-",site_names[working])) %>%
-    filter(USGSPCode %in% chem_codes$`X5_digit_code`)
+    dplyr::filter(USGSPCode %in% chem_codes$`X5_digit_code`)
 
   # create a gauge_id field
   wq_data <- wq_data %>%
-    separate(MonitoringLocationIdentifier, c("organization", "gauge_id"), sep = "-")
+    tidyr::separate(MonitoringLocationIdentifier, c("organization", "gauge_id"), sep = "-")
 
   ## Get the USGS stream flow time-series
   flow_code <- "00060"
@@ -75,29 +75,29 @@ get_sample_data <- function(site_names, chem_codes=USGS_parameter_priority) {
 
   # Cleaning things
   flow_daily <- flow_daily %>%
-    select(site_no, Date, X_00060_00003, X_00060_00003_cd ) %>%
-    rename(gauge_id = site_no) %>%
-    rename(discharge_cfs = X_00060_00003) %>%
-    rename(discharge_cfs_qflag = X_00060_00003_cd)
+    dplyr::select(site_no, Date, X_00060_00003, X_00060_00003_cd ) %>%
+    dplyr::rename(gauge_id = site_no) %>%
+    dplyr::rename(discharge_cfs = X_00060_00003) %>%
+    dplyr::rename(discharge_cfs_qflag = X_00060_00003_cd)
 
   ## attach the stream flow from the chemistry measurement
   # Get the flow from chemistry data
   usgs_chem_q <- wq_data %>%
-    filter(str_detect(CharacteristicName,"flow")) %>%    # keep some room for other potential types of flow
-    select(MonitoringLocationIdentifier, ActivityStartDate, ActivityStartTime.Time,
+    dplyr::filter(str_detect(CharacteristicName,"flow")) %>%    # keep some room for other potential types of flow
+    dplyr::select(MonitoringLocationIdentifier, ActivityStartDate, ActivityStartTime.Time,
            ActivityStartTime.TimeZoneCode, HydrologicCondition, HydrologicEvent, CharacteristicName,
            ResultMeasureValue, ResultMeasure.MeasureUnitCode)
   # join the flow data
   # Combine it with the flow
-  all_q <- left_join(flow_daily, usgs_chem_q, by = c("gauge_id","Date" = "ActivityStartDate")) %>%
-    mutate(flow_diff = discharge_cfs - ResultMeasureValue)
+  all_q <- dplyr::left_join(flow_daily, usgs_chem_q, by = c("gauge_id","Date" = "ActivityStartDate")) %>%
+    dplyr::mutate(flow_diff = discharge_cfs - ResultMeasureValue)
 
 
   ## Get the corresponding site information
   site_info <- dataRetrieval::readNWISsite(site_names[working]) %>%
     dplyr::select(agency_cd, site_no, station_nm, dec_lat_va, dec_long_va, dec_coord_datum_cd, state_cd, county_cd,
                   alt_va, huc_cd, drain_area_va, contrib_drain_area_va, tz_cd) %>% # select the columns of interest
-    rename(gauge_id = site_no)
+    dplyr::rename(gauge_id = site_no)
 
   # Put all the tables into a list (for now)
   usgs_data <- list(discharge = all_q,
