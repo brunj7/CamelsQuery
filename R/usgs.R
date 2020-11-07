@@ -26,6 +26,8 @@ get_sample_data <- function(site_names, chem_codes=USGS_parameter_priority) {
   no_data <- logical(length(site_names))
   working <- logical(length(site_names))
 
+  message("<---- Checking for USGS chemistry data availability ---->")
+
   for (i in 1:length(site_names)) {
     ## look for sites that have sample data associated with them
     ## we use trycatch() because if a site doesn't exist the function is aborted/exited
@@ -60,6 +62,8 @@ get_sample_data <- function(site_names, chem_codes=USGS_parameter_priority) {
   # then filter for only water quality data of interest based on the list of param_codes that is stored in the package data
   ##~~~ NOTE: may want to remove this feature/ add it as a T/F option in the function
 
+  message("<---- Retrieving USGS chemistry data  ---->")
+
   # split gauges into chunks to be gentler on the API
   site_ids_chunks <- split(site_names, ceiling(seq_along(site_names[working])/10))
   n_chunks <- length(site_ids_chunks)
@@ -74,6 +78,8 @@ get_sample_data <- function(site_names, chem_codes=USGS_parameter_priority) {
     dplyr::select(-chem_fields_drop$name)
 
   ## Get the USGS stream flow time-series
+  message("<---- Retrieving USGS stream flow daily average ---->")
+
   flow_code <- "00060"
   flow_daily <- dataRetrieval::readNWISdv(site_names[working], flow_code) # Assuming they all have a flow - to be tested
   # flow_daily <- purrr:: map_dfr(site_ids_chunks, ~readNWISdv(.x, flow_code))
@@ -120,6 +126,8 @@ get_sample_data <- function(site_names, chem_codes=USGS_parameter_priority) {
 }
 
   ## Get the corresponding site information
+  message("<---- Retrieving USGS site information ---->")
+
   site_info <- dataRetrieval::readNWISsite(site_names[working]) %>%
     dplyr::select(agency_cd, site_no, station_nm, dec_lat_va, dec_long_va, dec_coord_datum_cd, state_cd, county_cd,
                   alt_va, huc_cd, drain_area_va, contrib_drain_area_va, tz_cd) %>% # select the columns of interest
