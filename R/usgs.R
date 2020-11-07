@@ -59,7 +59,13 @@ get_sample_data <- function(site_names, chem_codes=USGS_parameter_priority) {
   # run readWQPdata() using working site names,
   # then filter for only water quality data of interest based on the list of param_codes that is stored in the package data
   ##~~~ NOTE: may want to remove this feature/ add it as a T/F option in the function
-  wq_data <- dataRetrieval::readWQPdata(siteid = paste0("USGS-",site_names[working])) %>%
+
+  # split gauges into chunks to be gentler on the API
+  site_ids_chunks <- split(site_names, ceiling(seq_along(site_names[working])/10))
+  n_chunks <- length(site_ids_chunks)
+  wq_data <- dataRetrieval::readWQPdata(siteid = paste0("USGS-", site_names[working]))
+  # wq_data <- purrr:: map_dfr(site_ids_chunks, ~dataRetrieval::readWQPdata(siteid = paste0("USGS-", .x)))
+  wq_data <- wq_data %>%
     dplyr::filter(USGSPCode %in% chem_codes$`X5_digit_code`)
 
   # create a gauge_id field
@@ -70,6 +76,7 @@ get_sample_data <- function(site_names, chem_codes=USGS_parameter_priority) {
   ## Get the USGS stream flow time-series
   flow_code <- "00060"
   flow_daily <- dataRetrieval::readNWISdv(site_names[working], flow_code) # Assuming they all have a flow - to be tested
+  # flow_daily <- purrr:: map_dfr(site_ids_chunks, ~readNWISdv(.x, flow_code))
 
   # Cleaning things
   flow_daily <- flow_daily %>%
@@ -81,15 +88,36 @@ get_sample_data <- function(site_names, chem_codes=USGS_parameter_priority) {
   ## attach the stream flow from the chemistry measurement
   # Get the flow from chemistry data
   usgs_chem_q <- wq_data %>%
-    dplyr::filter(stringr::str_detect(CharacteristicName,"flow")) %>%    # keep some room for other potential types of flow
-    dplyr::select(gauge_id, ActivityStartDate, ActivityStartTime.Time,
-           ActivityStartTime.TimeZoneCode, HydrologicCondition, HydrologicEvent, CharacteristicName,
-           ResultMeasureValue, ResultMeasure.MeasureUnitCode)
-  # join the flow data
-  # Combine it with the flow
-  all_q <- dplyr::left_join(flow_daily, usgs_chem_q, by = c("gauge_id", "Date" = "ActivityStartDate")) %>%
-    dplyr::mutate(flow_diff = discharge_cfs - ResultMeasureValue)
+    dplyr::filter(stringr::str_detect(CharacteristicName,"flow"))     # keep some room for other potential types of flow
 
+  # Sometimes there are no chemistry data accross and entire region
+  if (nrow(usgs_chem_q) == 0) {
+    all_q <- flow_daily %>%
+      add_column(ActivityStartDate = as.characer(NA),
+                 ActivityStartTime.Time = as.character(NA) ,
+                 ActivityStartTime.TimeZoneCode = as.character(NA),
+                 HydrologicCondition = as.numeric(NA),
+                 HydrologicEvent = as.numeric(NA),
+                 CharacteristicName = as.characer(NA),
+                 ResultMeasureValue = as.numeric(NA),
+                 ResultMeasure.MeasureUnitCode = as.characer(NA),
+                 flow_diff = as.numeric(NA)
+                 )
+  } else {
+    # make sure this field is returned and is numeric
+    # if (ResultMeasureValue %in% names(usgs_chem_q)) {
+    #   usgs_chem_q$ResultMeasureValue <- as.numeric(usgs_chem_q$ResultMeasureValue)
+    # }
+    usgs_chem_q <- usgs_chem_q %>%
+      dplyr::select(gauge_id, ActivityStartDate, ActivityStartTime.Time,
+             ActivityStartTime.TimeZoneCode, HydrologicCondition, HydrologicEvent, CharacteristicName,
+             ResultMeasureValue, ResultMeasure.MeasureUnitCode)
+    # join the flow data
+    # Combine it with the flow
+
+      all_q <- dplyr::left_join(flow_daily, usgs_chem_q, by = c("gauge_id", "Date" = "ActivityStartDate")) %>%
+        dplyr::mutate(flow_diff = discharge_cfs - ResultMeasureValue)
+}
 
   ## Get the corresponding site information
   site_info <- dataRetrieval::readNWISsite(site_names[working]) %>%
@@ -109,7 +137,12 @@ get_sample_data <- function(site_names, chem_codes=USGS_parameter_priority) {
 
 
 
-
+# # Slice the site list by 10 to ease the API query
+# site_ids_chunks <- split(site_names, ceiling(seq_along(site_names)/10))
+# n_chunks <- length(site_ids_chunks)
+#
+# for (c in 1:n_chunks) {
+#   Sys.sleep(5)  # to be friendly
 
 
 
