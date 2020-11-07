@@ -93,14 +93,14 @@ get_sample_data <- function(site_names, chem_codes=USGS_parameter_priority) {
   # Sometimes there are no chemistry data accross and entire region
   if (nrow(usgs_chem_q) == 0) {
     all_q <- flow_daily %>%
-      add_column(ActivityStartDate = as.characer(NA),
+      add_column(ActivityStartDate = as.character(NA),
                  ActivityStartTime.Time = as.character(NA) ,
                  ActivityStartTime.TimeZoneCode = as.character(NA),
                  HydrologicCondition = as.numeric(NA),
                  HydrologicEvent = as.numeric(NA),
-                 CharacteristicName = as.characer(NA),
+                 CharacteristicName = as.character(NA),
                  ResultMeasureValue = as.numeric(NA),
-                 ResultMeasure.MeasureUnitCode = as.characer(NA),
+                 ResultMeasure.MeasureUnitCode = as.character(NA),
                  flow_diff = as.numeric(NA)
                  )
   } else {
