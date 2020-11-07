@@ -53,7 +53,7 @@ get_sample_data <- function(site_names, chem_codes=USGS_parameter_priority) {
 
   ## throw a message letting the user know about incorrect site codes, or sites that don't have any data.
   if(any(err)) cat("following sites not found please check that these station codes are correct: \n", sprintf("%s \n", site_names[err]))
-  if(any(no_data)) cat("no sample data found for sites: \n", sprintf(" %s \n", site_names[no_data]))
+  if(any(no_data)) cat("no chemistry sample data found for sites: \n", sprintf(" %s \n", site_names[no_data]))
 
 
   # run readWQPdata() using working site names,
