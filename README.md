@@ -1,4 +1,4 @@
-[![R build status](https://github.com/kylemonper/CamelsQuery/workflows/R-CMD-check/badge.svg)](https://github.com/kylemonper/CamelsQuery/actions)
+[![R build status](https://github.com/brunj7/CamelsQuery/workflows/R-CMD-check/badge.svg)](https://github.com/kylemonper/CamelsQuery/actions)
 
 # CamelsQuery
 
