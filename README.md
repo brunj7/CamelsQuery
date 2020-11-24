@@ -1,3 +1,5 @@
+[![R build status](https://github.com/kylemonper/CamelsQuery/workflows/R-CMD-check/badge.svg)](https://github.com/kylemonper/CamelsQuery/actions)
+
 # CamelsQuery
 
 This package ease the processing of NCAR Catchement Attributes and Meteorlogy for Large-sample Studies (CAMELS) data using R using a set of USGS stream gages ([here](https://help.waterdata.usgs.gov/) for more). This package offers a function for downloading the data automatically, are it can be downloaded at the following site:
