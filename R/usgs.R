@@ -2,8 +2,9 @@
 #'
 #' this is mainly a helper function for using the readWQPdata() function from the dataRetrieval package in that it helps the user identify if any of the station of interest don't have sample data associated with them, or simply don't exist.
 #'
-#' @param site_names list of site names
+#' @param site_names a vector of site names
 #' @param chem_codes a data frame with the USGS water chemistry codes of the parameters you want to query
+#' @param drop_fields a logical to set if only a subset of chemistry columns should be kept
 #'
 #' @return water quality sample data for sites
 #' @export
@@ -13,7 +14,7 @@
 #' site_names <- c("USEPA-440432070255401","test", "010158001", "01011100", "test2")
 #' sample_data <- get_sample_data(site_names)
 #'}
-get_sample_data <- function(site_names, chem_codes=USGS_parameter_priority) {
+get_sample_data <- function(site_names, chem_codes=USGS_parameter_priority, drop_fields = TRUE) {
 
   ## the goal of this function is make the dataRetrieval::readWQPdata() function a bit easier to use
   #~ if site codes are incorrect readWQPdata() gives a vague error and also stops the function entirely,
@@ -65,17 +66,23 @@ get_sample_data <- function(site_names, chem_codes=USGS_parameter_priority) {
   message("<---- Retrieving USGS chemistry data  ---->")
 
   # split gauges into chunks to be gentler on the API
-  site_ids_chunks <- split(site_names, ceiling(seq_along(site_names[working])/10))
-  n_chunks <- length(site_ids_chunks)
+  # site_ids_chunks <- split(site_names, ceiling(seq_along(site_names[working])/10))
+  # n_chunks <- length(site_ids_chunks)
   wq_data <- dataRetrieval::readWQPdata(siteid = paste0("USGS-", site_names[working]))
   # wq_data <- purrr:: map_dfr(site_ids_chunks, ~dataRetrieval::readWQPdata(siteid = paste0("USGS-", .x)))
   wq_data <- wq_data %>%
-    dplyr::filter(USGSPCode %in% chem_codes$`X5_digit_code`)
+    dplyr::filter(USGSPCode %in% chem_codes$`5_digit_code`)
 
   # create a gauge_id field
   wq_data <- wq_data %>%
-    tidyr::separate(MonitoringLocationIdentifier, c("organization", "gauge_id"), sep = "-") %>%
-    dplyr::select(-chem_fields_drop$name)
+    tidyr::separate(MonitoringLocationIdentifier, c("organization", "gauge_id"), sep = "-")
+
+  # Keep only the columns we need
+  if (isTRUE(drop_fields)) {
+    wq_data <- wq_data %>%
+      dplyr::select(-chem_fields_drop$fieldname) # drop columns we do not want (id)
+  }
+
 
   ## Get the USGS stream flow time-series
   message("<---- Retrieving USGS stream flow daily average ---->")
@@ -117,10 +124,11 @@ get_sample_data <- function(site_names, chem_codes=USGS_parameter_priority) {
     usgs_chem_q <- usgs_chem_q %>%
       dplyr::select(gauge_id, ActivityStartDate, ActivityStartTime.Time,
              ActivityStartTime.TimeZoneCode, HydrologicCondition, HydrologicEvent, CharacteristicName,
-             ResultMeasureValue, ResultMeasure.MeasureUnitCode)
+             ResultMeasureValue, ResultMeasure.MeasureUnitCode) %>%
+      mutate(ResultMeasureValue = as.numeric(ResultMeasureValue)) # making field numeric
+
     # join the flow data
     # Combine it with the flow
-
       all_q <- dplyr::left_join(flow_daily, usgs_chem_q, by = c("gauge_id", "Date" = "ActivityStartDate")) %>%
         dplyr::mutate(flow_diff = discharge_cfs - ResultMeasureValue)
 }

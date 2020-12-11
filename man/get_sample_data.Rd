@@ -4,12 +4,18 @@
 \alias{get_sample_data}
 \title{get sample data from dataRetrieval pacakge}
 \usage{
-get_sample_data(site_names, chem_codes = USGS_parameter_priority)
+get_sample_data(
+  site_names,
+  chem_codes = USGS_parameter_priority,
+  drop_fields = TRUE
+)
 }
 \arguments{
-\item{site_names}{list of site names}
+\item{site_names}{a vector of site names}
 
 \item{chem_codes}{a data frame with the USGS water chemistry codes of the parameters you want to query}
+
+\item{drop_fields}{a logical to set if only a subset of chemistry columns should be kept}
 }
 \value{
 water quality sample data for sites
