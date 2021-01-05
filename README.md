@@ -2,7 +2,7 @@
 
 # CamelsQuery
 
-This package ease the processing of NCAR Catchement Attributes and Meteorlogy for Large-sample Studies (CAMELS) data using R using a set of USGS stream gages ([here](https://help.waterdata.usgs.gov/) for more). This package offers a function for downloading the data automatically, are it can be downloaded at the following site:
+This package eases the processing of NCAR Catchement Attributes and Meteorlogy for Large-sample Studies (CAMELS) data using R. It requires as input a set of USGS stream gages ([here](https://help.waterdata.usgs.gov/) for more). This package offers a function for downloading the CAMELS data automatically, a function to process CAMELS data and integrate them with USGS daily streamflow and water quality gauge data.
 
 CAMELS data: https://ral.ucar.edu/solutions/products/camels
 
@@ -35,15 +35,14 @@ remotes::install_github("brunj7/CamelsQuery")
 
 *** 
   
- # Walkthrough
+# Walkthrough
+
 ### This guide walks through the how to:  
 1. download CAMELS data remotely
 2. run and use the `extract_huc_data` function to query and visualize data from the CAMELS dataset
 3. use the `get_sample_data` function to get usgs streamgauge data
   
     
-
-
 ##### Load package
 
 ```r
